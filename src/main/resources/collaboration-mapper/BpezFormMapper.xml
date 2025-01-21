@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eorion.bo.enhancement.collaboration.mapper.CollaborationFormMapper">
+
+
+    <resultMap id="fromListByPage" type="com.eorion.bo.enhancement.collaboration.domain.dto.outbound.FormListDTO">
+        <id column="ID" property="id"/>
+        <result property="name" column="NAME_TXT"/>
+        <result property="definitionKey" column="DEFINITION_KEY_TXT" />
+        <result property="tenant" column="TENANT_TXT"/>
+        <result property="createdBy" column="CREATE_BY_TXT"/>
+        <result property="updatedBy" column="UPDATED_BY_TXT"/>
+        <result property="createdAt" column="CREATED_TS"/>
+        <result property="updatedAt" column="UPDATED_TS"/>
+    </resultMap>
+    <select id="getFromListByPage" resultMap="fromListByPage">
+        select * from COLLABORATION_FORM
+        <where>
+            DELETE_FG = 0
+            <if test="nameLike != null and nameLike != ''">
+                and NAME_TXT like CONCAT('%', #{nameLike}, '%')
+            </if>
+            <if test="tenant != null and tenant != ''">
+                and TENANT_TXT = #{tenant}
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                and CREATED_BY_TXT = #{createdBy}
+            </if>
+            <if test="type != null and type != ''">
+                and TYPE_TXT = #{type}
+            </if>
+            <if test="definitionKey != null and definitionKey != ''">
+                    and DEFINITION_KEY_TXT = #{definitionKey}
+            </if>
+        </where>
+        order by ${sort}
+        <include refid="page"/>
+    </select>
+    <sql id="page">
+        offset #{firstResult} rows fetch next #{maxResults} rows only
+    </sql>
+    <sql id="page" databaseId="mysql">
+        limit #{maxResults} offset #{firstResult}
+    </sql>
+</mapper>

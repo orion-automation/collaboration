@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eorion.bo.enhancement.collaboration.mapper.ProjectMapper">
+
+
+    <select id="queryForList" resultType="com.eorion.bo.enhancement.collaboration.domain.entity.Project">
+        SELECT id,
+               NAME_TXT       AS name,
+               COE_CODE,
+               TAGS_TXT       AS tags,
+               TYPE_TXT       AS type,
+               OWNER,
+               TENANT,
+               CREATED_TS,
+               UPDATED_TS,
+               CREATE_BY_TXT  AS createdBy,
+               UPDATED_BY_TXT AS updatedBy,
+               DELETE_FG      AS deleteFlag
+        FROM COLLABORATION_COOPERATION_PROJECT
+        WHERE DELETE_FG = 0
+        <if test="type != null and type != ''">
+            AND TYPE_TXT = #{type}
+        </if>
+        <if test="coeCode != null and coeCode != ''">
+            AND COE_CODE = #{coeCode}
+        </if>
+        <if test="tenant != null and tenant != ''">
+            AND TENANT = #{tenant}
+        </if>
+        <if test="nameLike != null and nameLike != ''">
+            AND NAME_TXT  LIKE CONCAT('%',#{nameLike},'%')
+        </if>
+        <if test="tags != null and tags.size() > 0">
+        <include refid="tagsSelect"/>
+        </if>
+
+    </select>
+
+    <sql id="tagsSelect" databaseId="postgresql">
+            AND (
+            EXISTS (SELECT 1 FROM regexp_split_to_table(TAGS_TXT, ',') AS a WHERE a IN
+            <foreach collection="tags" item="tag" open="(" close=")" separator=",">
+                #{tag}
+            </foreach>
+            ))
+    </sql>
+
+    <sql id="tagsSelect" databaseId="mysql">
+            AND (
+            <foreach collection="tags" item="tag" open="(" close=")" separator="OR">
+                FIND_IN_SET(#{tag}, TAGS_TXT) > 0
+            </foreach>
+            ))
+    </sql>
+
+    <sql id="tagsSelect" databaseId="h2">
+            AND (
+            <foreach collection="tags" item="tag" separator="OR">
+                REGEXP_REPLACE(TAGS_TXT, concat('(^|,)',#{tag},'($|,)'), '') != TAGS_TXT
+            </foreach>
+            )
+    </sql>
+</mapper>

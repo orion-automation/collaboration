@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="dmn_byd_managerapprovers" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.1.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <decision id="dmn_byd_manager_approvers" name="BYD部门负责人审批DMN">
+    <decisionTable id="DecisionTable_1mhgil8" hitPolicy="FIRST">
+      <input id="Input_1" label="startUserId" camunda:inputVariable="startUserId">
+        <inputExpression id="InputExpression_1" typeRef="string">
+          <text></text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="approver" name="approver" typeRef="string" />
+      <rule id="DecisionRule_0i2obtb">
+        <inputEntry id="UnaryTests_1jldckx">
+          <text>"chengminxi"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0ykytfj">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_164a5r7">
+        <inputEntry id="UnaryTests_0mi070j">
+          <text>"guyan"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_010n3ae">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1kdn06y">
+        <inputEntry id="UnaryTests_1bbxb4t">
+          <text>"guanqing"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0a9tb6x">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1rbguaw">
+        <inputEntry id="UnaryTests_0u8dpnq">
+          <text>"liangchao"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1hdpsre">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0kg2yyd">
+        <inputEntry id="UnaryTests_1xp34no">
+          <text>"xulinmei"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1wky577">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1m94fcr">
+        <inputEntry id="UnaryTests_1bg7f1i">
+          <text>"zhangyuanyuan"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_00g9m19">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1i348xl">
+        <inputEntry id="UnaryTests_01vwzbz">
+          <text>"eprdemo"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0yf48n5">
+          <text>"liuzheng"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1h1hotc">
+        <inputEntry id="UnaryTests_11pw539">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1rsa62j">
+          <text>"none"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape dmnElementRef="dmn_byd_manager_approvers">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

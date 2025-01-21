@@ -1,0 +1,24 @@
+camunda:
+  bpm:
+    auto-deployment-enabled: false
+    job-execution:
+      enabled: false
+    admin-user:
+      id: demo
+      password: demo
+      first-name: demo
+      last-name: demo
+      email: demo@eorion.com
+mybatis-plus:
+  mapper-locations: classpath*:**/collaboration-mapper/*Mapper.xml
+spring:
+  liquibase:
+    change-log: db/collaboration-changelog.yml
+
+logging:
+  level:
+    root: info
+    com.baomidou: debug
+    org.mybatis: debug
+    org.apache.ibatis: debug
+    com.eorion: debug

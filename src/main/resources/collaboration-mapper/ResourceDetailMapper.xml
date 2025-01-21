@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eorion.bo.enhancement.collaboration.mapper.ResourceDetailMapper">
+
+
+    <select id="findMaxVersionByResourceIds"
+            resultType="com.eorion.bo.enhancement.collaboration.domain.entity.ResourceDetail">
+        SELECT
+        t1.id,
+        t1.resource_id,
+        t1.name_txt,
+        t1.xml_
+        FROM COLLABORATION_COOPERATION_RES_DETAIL t1
+        JOIN (
+        SELECT resource_id, MAX(version) AS max_version
+        FROM COLLABORATION_COOPERATION_RES_DETAIL
+        WHERE resource_id IN
+        <foreach collection="resourceIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND delete_fg != 1
+        GROUP BY resource_id
+        ) t2 ON t1.resource_id = t2.resource_id AND t1.version = t2.max_version
+    </select>
+
+    <select id="findMaxVersionByResourceId" resultType="integer">
+        SELECT MAX(version) FROM COLLABORATION_COOPERATION_RES_DETAIL WHERE resource_id = #{resourceId}
+    </select>
+</mapper>

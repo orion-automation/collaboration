@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1chhz3f" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.1.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <decision id="dmn_rec_brother_tenant" name="recuitment tenant对应合作伙伴tenant">
+    <decisionTable id="DecisionTable_0d2dxic">
+      <input id="Input_1" label="tenantId">
+        <inputExpression id="InputExpression_1" typeRef="string">
+          <text>tenantId</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="tenantListString" name="tenantListString" typeRef="string" biodi:width="254" />
+      <rule id="DecisionRule_0v7p8pj">
+        <inputEntry id="UnaryTests_0cjdqwy">
+          <text>"7"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_02awl6q">
+          <text>"kfc,kate"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1uikjwf">
+        <inputEntry id="UnaryTests_0r5y8o6">
+          <text>"8"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0pv2ofn">
+          <text>"hxmsthainan01"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0o3qkbo">
+        <inputEntry id="UnaryTests_16h949j">
+          <text>"11"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1ha2ksk">
+          <text>"eprdemo"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1y8hi0o">
+        <inputEntry id="UnaryTests_0dy4q6h">
+          <text>"9"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_12wghxr">
+          <text>"yndemo"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_16o6e9x">
+        <inputEntry id="UnaryTests_0gn17fy">
+          <text>""</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0uqpfm6">
+          <text>""</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape dmnElementRef="dmn_rec_brother_tenant">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

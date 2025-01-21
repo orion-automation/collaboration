@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eorion.bo.enhancement.collaboration.mapper.ResourceMapper">
+    <resultMap id="listResultMap" type="com.eorion.bo.enhancement.collaboration.domain.dto.outbound.ResourceDetailDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="resource_name"/>
+        <result property="type" column="type"/>
+        <result property="updatedBy" column="updated_by_txt"/>
+        <result property="updatedTs" column=""/>
+        <result property="externalResourceId" column="external_resource_id"/>
+        <result property="parentNode" column="parent_node"/>
+        <result property="projectId" column="project_id"/>
+        <result property="detailLatestUpdatedBy" column="detail_latest_updated_by"/>
+        <result property="detailLatestUpdatedTs" column="detail_latest_updated_ts"/>
+        <result property="tags" column="tags_txt"/>
+        <result property="createdBy" column="create_by_txt"/>
+        <result property="createdTs" column="created_ts"/>
+    </resultMap>
+    <select id="selectForList" resultMap="listResultMap">
+        SELECT t1.*,t5.*
+        FROM COLLABORATION_COOPERATION_RESOURCE t1
+        LEFT JOIN
+        (SELECT t2.RESOURCE_ID, UPDATED_BY AS detail_latest_updated_by, UPDATED_TS AS detail_latest_updated_ts
+        FROM COLLABORATION_COOPERATION_RES_DETAIL t2
+        JOIN
+        (SELECT RESOURCE_ID, MAX(UPDATED_TS) maxUpdatedTs
+        FROM COLLABORATION_COOPERATION_RES_DETAIL t3
+        GROUP BY RESOURCE_ID) t4 ON t2.RESOURCE_ID = t4.RESOURCE_ID AND t2.UPDATED_TS = t4.maxUpdatedTs) t5
+        ON t1.ID = t5.RESOURCE_ID WHERE t1.DELETE_FG = 0
+        <if test="projectId!=null">
+            AND t1.PROJECT_ID = #{projectId}
+        </if>
+        <if test="parentNode!=null">
+            AND t1.PARENT_NODE = #{parentNode}
+        </if>
+        <if test="status!=null">
+            AND t1.STATUS_TXT = #{status}
+        </if>
+        <if test="nameLike!=null">
+            AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+        </if>
+        <if test="typesIn != null and typesIn.size() > 0">
+            AND ( t1.TYPE IN
+                <foreach collection="typesIn" item="type" separator="," open="(" close=")">
+                    #{type}
+                </foreach>
+            )
+        </if>
+        <include refid="tagsSelect"/>
+        ORDER BY t1.CREATED_TS DESC
+    </select>
+
+    <select id="selectStatistics" resultType="com.eorion.bo.enhancement.collaboration.domain.dto.outbound.CooperationResourceTypeStatisticsDTO">
+        SELECT t1.TYPE AS type, COUNT(t1.ID) AS count
+        FROM COLLABORATION_COOPERATION_RESOURCE t1
+        WHERE t1.DELETE_FG = 0
+        <if test="projectId!=null">
+            AND t1.PROJECT_ID = #{projectId}
+        </if>
+        <if test="parentNode!=null">
+            AND t1.PARENT_NODE = #{parentNode}
+        </if>
+        <if test="status!=null">
+            AND t1.STATUS_TXT = #{status}
+        </if>
+        <if test="nameLike!=null">
+            AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+        </if>
+        <if test="typesIn != null and typesIn.size() > 0">
+            AND ( t1.TYPE IN
+            <foreach collection="typesIn" item="type" separator="," open="(" close=")">
+                #{type}
+            </foreach>
+            )
+        </if>
+        <include refid="tagsSelect"/>
+        GROUP BY t1.TYPE
+    </select>
+
+    <select id="searchForList" resultMap="listResultMap">
+        SELECT *
+        FROM COLLABORATION_COOPERATION_RESOURCE t1
+        LEFT JOIN
+        (SELECT t2.RESOURCE_ID, UPDATED_BY AS detail_latest_updated_by, UPDATED_TS AS detail_latest_updated_ts
+        FROM COLLABORATION_COOPERATION_RES_DETAIL t2
+        JOIN
+        (SELECT RESOURCE_ID, MAX(UPDATED_TS) maxUpdatedTs
+        FROM COLLABORATION_COOPERATION_RES_DETAIL t3
+        GROUP BY RESOURCE_ID) t4 ON t2.RESOURCE_ID = t4.RESOURCE_ID AND t2.UPDATED_TS = t4.maxUpdatedTs) t5
+        ON t1.ID = t5.RESOURCE_ID
+        INNER JOIN COLLABORATION_COOPERATION_PROJECT t6 ON t1.PROJECT_ID = t6.ID
+        WHERE t1.DELETE_FG = 0
+        <if test="projectId!=null">
+            AND t1.PROJECT_ID = #{projectId}
+        </if>
+        <if test="parentNode!=null">
+            AND t1.PARENT_NODE = #{parentNode}
+        </if>
+        <if test="status!=null">
+            AND t1.STATUS_TXT = #{status}
+        </if>
+        <if test="nameLike!=null">
+            AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+        </if>
+        <if test="typesIn != null and typesIn.size() > 0">
+            AND ( t1.TYPE IN
+            <foreach collection="typesIn" item="type" separator="," open="(" close=")">
+                #{type}
+            </foreach>
+            )
+        </if>
+        <if test="projectTypesIn != null and projectTypesIn.size() > 0">
+            AND ( t6.TYPE_TXT IN
+            <foreach collection="projectTypesIn" item="projectType" separator="," open="(" close=")">
+                #{projectType}
+            </foreach>
+            )
+        </if>
+        <if test="tags != null and tags.size() > 0">
+            AND (
+            <foreach collection="tags" item="tag" separator="OR">
+                t1.TAGS_TXT LIKE CONCAT('%',#{tag},'%')
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <sql id="tagsSelect" databaseId="postgresql">
+        <if test="tags != null and tags.size() > 0">
+            AND (
+            EXISTS (SELECT 1 FROM regexp_split_to_table(t1.TAGS_TXT, ',') AS a WHERE a IN
+            <foreach collection="tags" item="tag" open="(" close=")" separator=",">
+                #{tag}
+            </foreach>
+            ))
+        </if>
+    </sql>
+
+    <sql id="tagsSelect" databaseId="h2">
+        <if test="tags != null and tags.size() > 0">
+            AND (
+            <foreach collection="tags" item="tag" separator="OR">
+                REGEXP_REPLACE(t1.TAGS_TXT, CONCAT('(^|,)',#{tag},'($|,)'), '') != t1.TAGS_TXT
+            </foreach>
+            )
+        </if>
+    </sql>
+
+    <sql id="tagsSelect" databaseId="mysql">
+        <if test="tags != null and tags.size() > 0">
+            AND (
+            <foreach collection="tags" item="tag" separator="OR">
+                FIND_IN_SET(#{tag}, TAGS_TXT) > 0
+            </foreach>
+            )
+        </if>
+    </sql>
+
+</mapper>

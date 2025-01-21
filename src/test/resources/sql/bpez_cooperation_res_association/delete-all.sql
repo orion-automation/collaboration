@@ -1,0 +1,2 @@
+TRUNCATE TABLE collaboration_cooperation_res_association;
+ALTER TABLE collaboration_cooperation_res_association ALTER COLUMN ID RESTART WITH 1;

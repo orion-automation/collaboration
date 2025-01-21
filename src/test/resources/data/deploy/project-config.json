@@ -1,0 +1,74 @@
+{
+  "basic": {
+    "appKey": "app-coeCode-116",
+    "name": "xppTest",
+    "faicon": "fal fa-fw fa-code-fork",
+    "iconColor": "#682D19FF",
+    "primaryColor": "#FF0000FF"
+  },
+  "authorization": [
+    {
+      "type": "user",
+      "id": "bladeshao",
+      "firstName": "blade",
+      "lastName": "shao",
+      "name": "blade shao | bladeshao@eorionsolution.com",
+      "email": "bladeshao@eorionsolution.com"
+    },
+    {
+      "type": "group",
+      "id": "eorion",
+      "firstName": null,
+      "lastName": null,
+      "name": "eorion",
+      "email": null
+    }
+  ],
+  "module": [
+    {
+      "name": "Home",
+      "faicon": "fal fa-fw fa-home",
+      "accessUser": [
+        {
+          "type": "user",
+          "id": "bladeshao",
+          "firstName": "blade",
+          "lastName": "shao",
+          "name": "blade shao | bladeshao@eorionsolution.com",
+          "email": "bladeshao@eorionsolution.com"
+        }
+      ],
+      "accessGroup": [
+        {
+          "type": "group",
+          "id": "eorion",
+          "firstName": null,
+          "lastName": null,
+          "name": "eorion",
+          "email": null
+        }
+      ],
+      "defaultPage": {
+        "id": 1193,
+        "name": "欢迎页面"
+      },
+      "index": 0
+    }
+  ],
+  "businessProcess": [
+    {
+      "resourceId": 1191,
+      "processDefKey": "Process_xapptest2",
+      "processName": "更新订单",
+      "resourceName": "更新订单",
+      "index": 0
+    },
+    {
+      "resourceId": 1190,
+      "processDefKey": "Process_xapptest1",
+      "processName": "创建订单",
+      "resourceName": "订单流程",
+      "index": 1
+    }
+  ]
+}

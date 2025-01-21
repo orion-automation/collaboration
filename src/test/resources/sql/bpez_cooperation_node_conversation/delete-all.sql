@@ -1,0 +1,2 @@
+TRUNCATE TABLE collaboration_cooperation_node_conversation;
+ALTER TABLE collaboration_cooperation_node_conversation ALTER COLUMN ID RESTART WITH 1;

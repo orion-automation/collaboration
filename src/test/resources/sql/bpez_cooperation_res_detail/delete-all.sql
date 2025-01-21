@@ -1,0 +1,1 @@
+truncate table collaboration_cooperation_res_detail;
