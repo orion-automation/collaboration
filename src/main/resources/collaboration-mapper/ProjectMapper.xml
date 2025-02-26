@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.eorion.bo.enhancement.collaboration.mapper.ProjectMapper">
 
-
     <select id="queryForList" resultType="com.eorion.bo.enhancement.collaboration.domain.entity.Project">
         SELECT id,
                NAME_TXT       AS name,
@@ -28,7 +27,14 @@
             AND TENANT = #{tenant}
         </if>
         <if test="nameLike != null and nameLike != ''">
-            AND NAME_TXT  LIKE CONCAT('%',#{nameLike},'%')
+            <choose>
+                <when test="_databaseId == 'oracle'">
+                    AND NAME_TXT LIKE '%'|| #{nameLike} || '%'
+                </when>
+                <otherwise>
+                    AND NAME_TXT LIKE CONCAT('%',#{nameLike},'%')
+                </otherwise>
+            </choose>
         </if>
         <if test="tags != null and tags.size() > 0">
         <include refid="tagsSelect"/>
@@ -44,7 +50,6 @@
             </foreach>
             ))
     </sql>
-
     <sql id="tagsSelect" databaseId="mysql">
             AND (
             <foreach collection="tags" item="tag" open="(" close=")" separator="OR">
@@ -52,12 +57,18 @@
             </foreach>
             ))
     </sql>
-
     <sql id="tagsSelect" databaseId="h2">
             AND (
             <foreach collection="tags" item="tag" separator="OR">
                 REGEXP_REPLACE(TAGS_TXT, concat('(^|,)',#{tag},'($|,)'), '') != TAGS_TXT
             </foreach>
             )
+    </sql>
+    <sql id="tagsSelect" databaseId="oracle">
+        AND(
+        <foreach collection="tags" item="tag" open="(" close=")" separator="OR">
+            REGEXP_LIKE(TAGS_TXT, '(^|,)' || #{tag} || '(,|$)')
+        </foreach>
+        )
     </sql>
 </mapper>

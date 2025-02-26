@@ -20,25 +20,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Slf4j
-public class MemberControllerTest {
+public class MemberControllerTest extends BaseControllerTest {
     @Autowired
     private IdentityService identityService;
     @Autowired
     private MockMvc mockMvc;
-
-    private final InputStreamReader memberDeleteReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/member/delete-all.sql")));
-
-    private final InputStreamReader projectDeleteReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/project/delete-all.sql")));
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -58,15 +51,15 @@ public class MemberControllerTest {
     }
 
     @PostConstruct
-    public void init() throws IOException {
+    public void init() {
         identityService.setAuthenticatedUserId("demo");
 
     }
 
     @BeforeEach
     public void clearUp() throws SQLException {
-        executor.batchExecuteSqlFromFile(memberDeleteReader);
-        executor.batchExecuteSqlFromFile(projectDeleteReader);
+        executor.batchExecuteSqlFromFile(getMemberDeleteStreamReader());
+        executor.batchExecuteSqlFromFile(getProjectDeleteStreamReader());
     }
 
     @Test
@@ -79,7 +72,8 @@ public class MemberControllerTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/enhancement/collaboration/member")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"projectId\": 1,\"userId\":\"demo\",\"role\":\"1\"}")
+                                .content("""
+                                        {"projectId": 1,"userId":"demo","role":"1"}""")
                                 .header("Authorization", auth)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -110,7 +104,8 @@ public class MemberControllerTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/enhancement/collaboration/member")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"projectId\": 1,\"userId\":\"user\"}")
+                                .content("""
+                                        {"projectId": 1,"userId":"user"}""")
                                 .header("Authorization", auth)
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
@@ -139,7 +134,8 @@ public class MemberControllerTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/enhancement/collaboration/member")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"projectId\": 1,\"userId\":\"user\"}")
+                                .content("""
+                                        {"projectId": 1,"userId":"user"}""")
                                 .header("Authorization", auth)
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());

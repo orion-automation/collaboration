@@ -20,7 +20,6 @@ import com.eorion.bo.enhancement.collaboration.exception.InsertFailedException;
 import com.eorion.bo.enhancement.collaboration.exception.RequestParamException;
 import com.eorion.bo.enhancement.collaboration.exception.ResourceConflictException;
 import com.eorion.bo.enhancement.collaboration.utils.Md5Utils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -162,7 +161,7 @@ public class ResourceDetailService {
     }
 
 
-    public ResponseEntity<?> getPublicResourceDetailById(String resourceDetailId, ResourceDetailPasswordDTO passwordDTO) throws DataNotExistException, NoSuchAlgorithmException, JsonProcessingException {
+    public ResponseEntity<?> getPublicResourceDetailById(String resourceDetailId, ResourceDetailPasswordDTO passwordDTO) throws DataNotExistException, NoSuchAlgorithmException {
 
         var dbResourceDetail = detailRepository.getById(resourceDetailId);
         if (Objects.nonNull(dbResourceDetail)) {

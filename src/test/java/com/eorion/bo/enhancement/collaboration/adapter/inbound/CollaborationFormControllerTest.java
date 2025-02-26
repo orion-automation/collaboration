@@ -20,29 +20,24 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Slf4j
-public class CollaborationFormControllerTest {
+public class CollaborationFormControllerTest extends BaseControllerTest {
     @Autowired
     private FormRepository formRepository;
     @Autowired
     private IdentityService identityService;
 
     private final ObjectMapper mapper = new ObjectMapper();
-
-    private final InputStreamReader formDeleteInputStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/form/delete-all.sql")));
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,8 +52,8 @@ public class CollaborationFormControllerTest {
     }
 
     @BeforeEach
-    public void init() throws IOException, SQLException {
-        executor.batchExecuteSqlFromFile(formDeleteInputStreamReader);
+    public void init() throws SQLException {
+        executor.batchExecuteSqlFromFile(getFormDeleteInputStreamReader());
         identityService.setAuthenticatedUserId("demo");
     }
 

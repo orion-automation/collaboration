@@ -7,7 +7,6 @@ import com.eorion.bo.enhancement.collaboration.domain.enums.ProjectType;
 import com.eorion.bo.enhancement.collaboration.domain.enums.ResourceType;
 import com.eorion.bo.enhancement.collaboration.domain.enums.RoleStatus;
 import com.eorion.bo.enhancement.collaboration.utils.BatchSQLExecutor;
-import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.digest._apacheCommonsCodec.Base64;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -33,10 +31,9 @@ import java.util.Objects;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class ProjectControllerTest {
+public class ProjectControllerTest extends BaseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,16 +51,7 @@ public class ProjectControllerTest {
     @Autowired
     private ResourceRepository resourceRepository;
 
-
-    private final InputStreamReader projectDeleteReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/project/delete-all.sql")));
-    private final InputStreamReader memberDeleteReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/member/delete-all.sql")));
-
     private final InputStreamReader xmlStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("bpmn/diagram_test.bpmn")));
-
-    private final InputStreamReader sqlInitStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/bpez_cooperation_res_detail/delete-all.sql")));
-
-    private final InputStream userInfo = this.getClass().getClassLoader().getResourceAsStream("responseBody/userInfo.json");
-
 
     private static final HttpHeaders headers = new HttpHeaders();
 
@@ -71,14 +59,11 @@ public class ProjectControllerTest {
         headers.set("Authorization", "Basic " + Base64.encodeBase64String("demo:demo".getBytes(StandardCharsets.UTF_8)));
     }
 
-    @Autowired
-    private IdentityService identityService;
-
     @BeforeEach
     public void clearUp() throws SQLException {
-        executor.batchExecuteSqlFromFile(projectDeleteReader);
-        executor.batchExecuteSqlFromFile(memberDeleteReader);
-        executor.batchExecuteSqlFromFile(sqlInitStreamReader);
+        executor.batchExecuteSqlFromFile(getProjectDeleteStreamReader());
+        executor.batchExecuteSqlFromFile(getMemberDeleteStreamReader());
+        executor.batchExecuteSqlFromFile(getResourceDetailDeleteStreamReader());
     }
 
     @Autowired
@@ -93,7 +78,8 @@ public class ProjectControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/project")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"name\",\"tenant\":\"tenant\",\"tags\":\"tags\",\"coeCode\":\"code\",\"type\":\"3\",\"configJson\": {\"key\": \"value\"}}")
+                                .content("""
+                                        {"name":"name","tenant":"tenant","tags":"tags","coeCode":"code","type":"3","configJson": {"key": "value"}}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1));
@@ -102,7 +88,8 @@ public class ProjectControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/project")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"name\",\"tenant\":\"tenant\",\"tags\":\"tags\",\"coeCode\":\"code\",\"type\":\"4\",\"configJson\": {\"key\": \"value\"}}")
+                                .content("""
+                                        {"name":"name","tenant":"tenant","tags":"tags","coeCode":"code","type":"4","configJson": {"key": "value"}}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(2));
@@ -137,7 +124,8 @@ public class ProjectControllerTest {
                         MockMvcRequestBuilders.put("/enhancement/collaboration/project/1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"name2\",\"tags\":\"tags\",\"configJson\": {\"key\": \"value\"}}")
+                                .content("""
+                                        {"name":"name2","tags":"tags","configJson": {"key": "value"}}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 

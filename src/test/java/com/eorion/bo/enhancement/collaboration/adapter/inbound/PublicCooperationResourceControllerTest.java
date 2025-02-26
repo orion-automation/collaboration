@@ -20,15 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.util.Objects;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class PublicCooperationResourceControllerTest {
+public class PublicCooperationResourceControllerTest extends BaseControllerTest {
     @Autowired
     private ResourceRepository repository;
 
@@ -44,12 +42,11 @@ public class PublicCooperationResourceControllerTest {
     @Autowired
     private BatchSQLExecutor executor;
 
-    private final InputStreamReader resourceDeleteReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/resource/delete-all.sql")));
-
     @BeforeEach
-    public void clearUp () throws SQLException {
-        executor.batchExecuteSqlFromFile(resourceDeleteReader);
+    public void clearUp() throws SQLException {
+        executor.batchExecuteSqlFromFile(getResourceDeleteInputStreamReader());
     }
+
     @Test
     public void getResourceByIdShouldReturn200() throws Exception {
 
@@ -120,7 +117,8 @@ public class PublicCooperationResourceControllerTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/pb/enhancement/collaboration/resource/detail/{detailId}", resourceDetail.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"password\": \"errorPassword\"}")
+                                .content("""
+                                        {"password": "errorPassword"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
@@ -140,7 +138,8 @@ public class PublicCooperationResourceControllerTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/pb/enhancement/collaboration/resource/detail/{detailId}", resourceDetail.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"password\": \"password\"}")
+                                .content("""
+                                        {"password": "password"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
