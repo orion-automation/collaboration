@@ -11,6 +11,8 @@ camunda:
       email: demo@eorion.com
 mybatis-plus:
   mapper-locations: classpath*:**/collaboration-mapper/*Mapper.xml
+  configuration:
+    jdbc-type-for-null: 'NULL'
 spring:
   liquibase:
     change-log: db/collaboration-changelog.yml

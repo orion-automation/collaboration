@@ -21,9 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
@@ -34,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CooperationResourceDetailControllerTest {
+public class CooperationResourceDetailControllerTest extends BaseControllerTest {
 
     @Autowired
     private IdentityService identityService;
@@ -57,16 +55,13 @@ public class CooperationResourceDetailControllerTest {
 
     private final InputStream xmlInputStream = Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("bpmn/diagram_test.bpmn"));
 
-    private final InputStreamReader sqlInitStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/bpez_cooperation_res_detail/delete-all.sql")));
-
-
     static {
         headers.set("Authorization", "Basic " + Base64.encodeBase64String("demo:demo".getBytes(StandardCharsets.UTF_8)));
     }
 
     @BeforeEach
-    public void clearUp() throws SQLException, IOException {
-        executor.batchExecuteSqlFromFile(sqlInitStreamReader);
+    public void clearUp() throws SQLException {
+        executor.batchExecuteSqlFromFile(getResourceDetailDeleteStreamReader());
         identityService.setAuthenticatedUserId("demo");
     }
 
@@ -77,7 +72,9 @@ public class CooperationResourceDetailControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource/{resourceId}/detail", resourceId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"name\",\"xml\":\"xml\",\"configJson\":{\"key2\":\"value2\",\"key1\":\"value1\"},\"nodes\":[\"Flow_1l3tmoc\",\"Flow_0und6nq\",\"Activity_1km1o7h\"]}\n")
+                                .content("""
+                                        {"name":"name","xml":"xml","configJson":{"key2":"value2","key1":"value1"},"nodes":["Flow_1l3tmoc","Flow_0und6nq","Activity_1km1o7h"]}
+                                        """)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("id").isString())
@@ -88,13 +85,15 @@ public class CooperationResourceDetailControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource/{resourceId}/detail", resourceId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"name\",\"xml\":\"xml\",\"configJson\":{\"key2\":\"value2\",\"key1\":\"value1\"},\"nodes\":[\"Flow_1l3tmoc\",\"Flow_0und6nq\",\"Activity_1km1o7h\"]}\n")
+                                .content("""
+                                        {"name":"name","xml":"xml","configJson":{"key2":"value2","key1":"value1"},"nodes":["Flow_1l3tmoc","Flow_0und6nq","Activity_1km1o7h"]}
+                                        """)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(print());
 
         var maxVersion = detailRepository.getMaxVersion(resourceId);
-        assertEquals(maxVersion, 2);
+        assertEquals(2, maxVersion);
     }
 
 
@@ -133,7 +132,8 @@ public class CooperationResourceDetailControllerTest {
                         MockMvcRequestBuilders.put("/enhancement/collaboration/resource/detail/{id}", detail.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"name2\"}")
+                                .content("""
+                                        {"name":"name2"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("currentVersionTimestamp not be empty !"))
@@ -192,7 +192,7 @@ public class CooperationResourceDetailControllerTest {
     public void getResourceDetailByDetailIdReturn200() throws Exception {
         String xml = new String(xmlInputStream.readAllBytes());
 
-        ResourceDetail detail = new ResourceDetail();
+        var detail = new ResourceDetail();
         detail.setName("name");
         detail.setResourceId(34L);
         detail.setVersion(1);
@@ -261,7 +261,8 @@ public class CooperationResourceDetailControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource/detail/{resourceDetailId}", detail.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"password\" : \"password\"}")
+                                .content("""
+                                        {"password" : "password"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
@@ -315,7 +316,8 @@ public class CooperationResourceDetailControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource/detail/{resourceDetailId}", detail.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"password\" : \"password\"}")
+                                .content("""
+                                        {"password" : "password"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
@@ -357,7 +359,7 @@ public class CooperationResourceDetailControllerTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        assertEquals(detailRepository.getById(detail.getId()).getZeroCodeEffort(), 30);
+        assertEquals(30, detailRepository.getById(detail.getId()).getZeroCodeEffort());
     }
 
     @Test

@@ -37,7 +37,14 @@
             AND t1.STATUS_TXT = #{status}
         </if>
         <if test="nameLike!=null">
-            AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+            <choose>
+                <when test="_databaseId == 'oracle'">
+                    AND t1.RESOURCE_NAME LIKE '%' || #{nameLike} || '%'
+                </when>
+                <otherwise>
+                    AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+                </otherwise>
+            </choose>
         </if>
         <if test="typesIn != null and typesIn.size() > 0">
             AND ( t1.TYPE IN
@@ -64,7 +71,14 @@
             AND t1.STATUS_TXT = #{status}
         </if>
         <if test="nameLike!=null">
-            AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+            <choose>
+                <when test="_databaseId == 'oracle'">
+                    AND t1.RESOURCE_NAME LIKE '%' || #{nameLike} || '%'
+                </when>
+                <otherwise>
+                    AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+                </otherwise>
+            </choose>
         </if>
         <if test="typesIn != null and typesIn.size() > 0">
             AND ( t1.TYPE IN
@@ -100,7 +114,14 @@
             AND t1.STATUS_TXT = #{status}
         </if>
         <if test="nameLike!=null">
-            AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+            <choose>
+                <when test="_databaseId == 'oracle'">
+                    AND t1.RESOURCE_NAME LIKE '%' || #{nameLike} || '%'
+                </when>
+                <otherwise>
+                    AND t1.RESOURCE_NAME LIKE CONCAT('%', #{nameLike}, '%')
+                </otherwise>
+            </choose>
         </if>
         <if test="typesIn != null and typesIn.size() > 0">
             AND ( t1.TYPE IN
@@ -118,9 +139,18 @@
         </if>
         <if test="tags != null and tags.size() > 0">
             AND (
-            <foreach collection="tags" item="tag" separator="OR">
-                t1.TAGS_TXT LIKE CONCAT('%',#{tag},'%')
-            </foreach>
+            <choose>
+                <when test="_databaseId == 'oracle'">
+                    <foreach collection="tags" item="tag" separator="OR">
+                        t1.TAGS_TXT LIKE '%' || #{tag} || '%'
+                    </foreach>
+                </when>
+                <otherwise>
+                    <foreach collection="tags" item="tag" separator="OR">
+                        t1.TAGS_TXT LIKE CONCAT('%',#{tag},'%')
+                    </foreach>
+                </otherwise>
+            </choose>
             )
         </if>
     </select>
@@ -135,7 +165,6 @@
             ))
         </if>
     </sql>
-
     <sql id="tagsSelect" databaseId="h2">
         <if test="tags != null and tags.size() > 0">
             AND (
@@ -145,12 +174,20 @@
             )
         </if>
     </sql>
-
     <sql id="tagsSelect" databaseId="mysql">
         <if test="tags != null and tags.size() > 0">
             AND (
             <foreach collection="tags" item="tag" separator="OR">
                 FIND_IN_SET(#{tag}, TAGS_TXT) > 0
+            </foreach>
+            )
+        </if>
+    </sql>
+    <sql id="tagsSelect" databaseId="oracle">
+        <if test="tags != null and tags.size() > 0">
+            AND (
+            <foreach collection="tags" item="tag" separator="OR">
+                REGEXP_LIKE(TAGS_TXT, '(^|,)' || #{tag} || '(,|$)')
             </foreach>
             )
         </if>

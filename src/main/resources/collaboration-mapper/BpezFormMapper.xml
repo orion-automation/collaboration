@@ -18,7 +18,14 @@
         <where>
             DELETE_FG = 0
             <if test="nameLike != null and nameLike != ''">
-                and NAME_TXT like CONCAT('%', #{nameLike}, '%')
+                <choose>
+                    <when test="_databaseId == 'oracle'">
+                        and NAME_TXT like '%'|| #{nameLike} || '%'
+                    </when>
+                    <otherwise>
+                        and NAME_TXT like CONCAT('%', #{nameLike}, '%')
+                    </otherwise>
+                </choose>
             </if>
             <if test="tenant != null and tenant != ''">
                 and TENANT_TXT = #{tenant}

@@ -28,7 +28,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -43,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CooperationResourceControllerTest {
+public class CooperationResourceControllerTest extends BaseControllerTest {
     @Autowired
     private IdentityService identityService;
     @Autowired
@@ -64,11 +63,7 @@ public class CooperationResourceControllerTest {
     @Autowired
     private ResourceBpmnNodeRepository nodeRepository;
 
-    private final InputStreamReader resourceDeleteReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/resource/delete-all.sql")));
-
     private final InputStreamReader xmlStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("bpmn/diagram_test.bpmn")));
-
-    private final InputStreamReader sqlInitStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/bpez_cooperation_res_detail/delete-all.sql")));
 
     private static final HttpHeaders headers = new HttpHeaders();
 
@@ -77,16 +72,15 @@ public class CooperationResourceControllerTest {
     }
 
     @PostConstruct
-    public void init() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    public void init() {
         identityService.setAuthenticatedUserId("demo");
     }
 
 
     @BeforeEach
     public void clearUp() throws SQLException {
-        executor.batchExecuteSqlFromFile(resourceDeleteReader);
-        executor.batchExecuteSqlFromFile(sqlInitStreamReader);
+        executor.batchExecuteSqlFromFile(getResourceDeleteInputStreamReader());
+        executor.batchExecuteSqlFromFile(getResourceDetailDeleteStreamReader());
     }
 
     @Test
@@ -95,7 +89,8 @@ public class CooperationResourceControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"projectId\": 1,\"name\": \"test.bpmn\",\"type\": \"3\",\"parentNode\": 1,\"externalResourceId\": \"www.baidu.com\",\"tags\": \"tags,cat\",\"configJson\": {\"key\": \"value\"}}")
+                                .content("""
+                                        {"projectId": 1,"name": "test.bpmn","type": "3","parentNode": 1,"externalResourceId": "www.baidu.com","tags": "tags,cat","configJson": {"key": "value"}}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
@@ -104,9 +99,9 @@ public class CooperationResourceControllerTest {
         var map = objectMapper.readValue(result.getResponse().getContentAsString(), Map.class);
         var id = (int) map.get("id");
         var dbResource = repository.getById(id);
-        assertEquals(dbResource.getTags(), "tags,cat");
-        assertEquals(dbResource.getExternalResourceId(), "www.baidu.com");
-        assertEquals(dbResource.getName(), "test.bpmn");
+        assertEquals("tags,cat", dbResource.getTags());
+        assertEquals("www.baidu.com", dbResource.getExternalResourceId());
+        assertEquals("test.bpmn", dbResource.getName());
         assertNotNull(dbResource.getConfigJson());
     }
 
@@ -124,13 +119,14 @@ public class CooperationResourceControllerTest {
                         MockMvcRequestBuilders.put("/enhancement/collaboration/resource/{resourceId}", resource.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\": \"user.bpmn\",\"parentNode\": 1,\"projectId\": 2,\"externalResourceId\": \"www.google.com\",\"tags\": \"tags,cat\",\"configJson\": {\"key\": \"value\"}}")
+                                .content("""
+                                        {"name": "user.bpmn","parentNode": 1,"projectId": 2,"externalResourceId": "www.google.com","tags": "tags,cat","configJson": {"key": "value"}}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
         var dbResource = repository.getById(resource.getId());
-        assertEquals(dbResource.getTags(), "tags,cat");
-        assertEquals(dbResource.getExternalResourceId(), "www.google.com");
-        assertEquals(dbResource.getName(), "user.bpmn");
+        assertEquals("tags,cat", dbResource.getTags());
+        assertEquals("www.google.com", dbResource.getExternalResourceId());
+        assertEquals("user.bpmn", dbResource.getName());
         assertNotNull(dbResource.getConfigJson());
     }
 
@@ -344,7 +340,7 @@ public class CooperationResourceControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
         var dbApplication = repository.getById(1);
-        assertEquals(dbApplication.getStatus(), CoopResourceStatus.PUBLISH);
+        assertEquals(CoopResourceStatus.PUBLISH, dbApplication.getStatus());
     }
 
     @Test
@@ -365,7 +361,7 @@ public class CooperationResourceControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
         var dbApplication = repository.getById(1);
-        assertEquals(dbApplication.getStatus(), CoopResourceStatus.DRAFT);
+        assertEquals(CoopResourceStatus.DRAFT, dbApplication.getStatus());
     }
 
     @Test
@@ -383,12 +379,13 @@ public class CooperationResourceControllerTest {
                         MockMvcRequestBuilders.put("/enhancement/collaboration/resource/{resourceId}/tags", 1)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"tags\": \"tags,tags\"}")
+                                .content("""
+                                        {"tags": "tags,tags"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
         var dbApplication = repository.getById(1);
-        assertEquals(dbApplication.getTags(), "tags,tags");
+        assertEquals("tags,tags", dbApplication.getTags());
     }
 
     @Test

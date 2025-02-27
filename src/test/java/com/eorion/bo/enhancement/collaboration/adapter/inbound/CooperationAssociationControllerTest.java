@@ -20,11 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -32,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CooperationAssociationControllerTest {
+public class CooperationAssociationControllerTest extends BaseControllerTest {
     @Autowired
     private ResourceRepository resourceRepository;
     @Autowired
@@ -49,16 +46,13 @@ public class CooperationAssociationControllerTest {
 
     private static final HttpHeaders headers = new HttpHeaders();
 
-    private final InputStreamReader sqlInitStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/bpez_cooperation_res_association/delete-all.sql")));
-
-
     static {
         headers.set("Authorization", "Basic " + Base64.encodeBase64String("demo:demo".getBytes(StandardCharsets.UTF_8)));
     }
 
     @BeforeEach
-    public void clearUp() throws SQLException, IOException {
-        executor.batchExecuteSqlFromFile(sqlInitStreamReader);
+    public void clearUp() throws SQLException {
+        executor.batchExecuteSqlFromFile(getAssociationDeleteInputStreamReader());
         identityService.setAuthenticatedUserId("demo");
     }
 
@@ -76,7 +70,8 @@ public class CooperationAssociationControllerTest {
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource/{resourceId}/association", resource.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"runtimeService\",\"url\":\"https://www.google.com\",\"type\": \"1\"}")
+                                .content("""
+                                        {"name":"runtimeService","url":"https://www.google.com","type": "1"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("id").value(1))
@@ -99,13 +94,14 @@ public class CooperationAssociationControllerTest {
                         MockMvcRequestBuilders.put("/enhancement/collaboration/resource/association/{associationId}", association.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"name\":\"runtimeService\",\"url\":\"https://www.google.com\",\"type\": \"2\"}")
+                                .content("""
+                                        {"name":"runtimeService","url":"https://www.google.com","type": "2"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
         var associationTest = associationRepository.getById(association.getId());
-        assertEquals(associationTest.getName(), "runtimeService");
-        assertEquals(associationTest.getUrl(), "https://www.google.com");
-        assertEquals(associationTest.getType(), ResourceAssociationType.KNOWLEDGE);
+        assertEquals("runtimeService", associationTest.getName());
+        assertEquals("https://www.google.com", associationTest.getUrl());
+        assertEquals(ResourceAssociationType.KNOWLEDGE, associationTest.getType());
     }
 
     @Test

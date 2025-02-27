@@ -20,11 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CooperationConversationControllerTest {
+public class CooperationConversationControllerTest extends BaseControllerTest {
 
     @Autowired
     private IdentityService identityService;
@@ -54,16 +51,13 @@ public class CooperationConversationControllerTest {
 
     private static final HttpHeaders headers = new HttpHeaders();
 
-    private final InputStreamReader sqlInitStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("sql/bpez_cooperation_node_conversation/delete-all.sql")));
-
-
     static {
         headers.set("Authorization", "Basic " + Base64.encodeBase64String("demo:demo".getBytes(StandardCharsets.UTF_8)));
     }
 
     @BeforeEach
-    public void clearUp() throws SQLException, IOException {
-        executor.batchExecuteSqlFromFile(sqlInitStreamReader);
+    public void clearUp() throws SQLException {
+        executor.batchExecuteSqlFromFile(getConversationDeleteInputStreamReader());
         identityService.setAuthenticatedUserId("demo");
     }
 
@@ -109,11 +103,12 @@ public class CooperationConversationControllerTest {
                         MockMvcRequestBuilders.put("/enhancement/collaboration/resource/detail/message/{messageId}", conversation.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
-                                .content("{\"message\": \"hello\"}")
+                                .content("""
+                                        {"message": "hello"}""")
                 )
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
         conversation = conversationRepository.getById(conversation.getId());
-        assertEquals(conversation.getMessage(), "hello");
+        assertEquals("hello", conversation.getMessage());
     }
 
 
