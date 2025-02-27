@@ -2,6 +2,10 @@ name: Test repository when push
 
 on:
   push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
   workflow_dispatch:
 
 jobs:

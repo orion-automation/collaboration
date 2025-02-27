@@ -50,7 +50,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git commit -am "chore: update pom version to ${{ github.event.release.tag_name }}"
+          git commit -am "[skip ci] chore: update pom version to ${{ github.event.release.tag_name }}"
           git push origin HEAD:main
 
   notify-on-failure:
