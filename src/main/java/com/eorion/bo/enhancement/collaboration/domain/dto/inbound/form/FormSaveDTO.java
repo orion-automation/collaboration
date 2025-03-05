@@ -18,13 +18,12 @@ public class FormSaveDTO {
     private String type;
     private String tenant;
     private String createdBy;
-
     private List<Map<String, Object>> formData;
 
     public String getFormData() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            if (!this.formData.isEmpty()) {
+            if (this.formData != null && !this.formData.isEmpty()) {
                 return objectMapper.writeValueAsString(this.formData);
             } else {
                 return "";

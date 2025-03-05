@@ -4,6 +4,7 @@ import com.eorion.bo.enhancement.collaboration.domain.entity.CollaborationForm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class FormDetailDTO {
@@ -38,7 +39,7 @@ public class FormDetailDTO {
         formDetailDTO.setDefinitionKey(collaborationForm.getDefinitionKey());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            if (!collaborationForm.getFormData().isEmpty()) {
+            if (StringUtils.isNotEmpty(collaborationForm.getFormData())) {
                 Object formData = objectMapper.readValue(collaborationForm.getFormData(), Object.class);
                 formDetailDTO.setFormData(formData);
             }

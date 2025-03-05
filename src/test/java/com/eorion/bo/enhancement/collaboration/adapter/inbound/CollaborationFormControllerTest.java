@@ -26,7 +26,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -58,6 +61,38 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
     }
 
     @Test
+    void shouldCreateFormWithEmptyDataAndRetrieveItBack() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/enhancement/form")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .headers(headers)
+                                .content("""
+  {
+      "name": "test-5",
+      "createdBy": "demo",
+      "type": "form",
+      "tenant": "tenant",
+      "formData": []
+      }
+""")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andDo(print());
+
+        assertThat(formRepository.count()).isEqualTo(1);
+        var result = formRepository.list().get(0);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/enhancement/form/{id}", result.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .headers(headers)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.formData").doesNotExist())
+                .andDo(print());
+    }
+
+    @Test
     public void createFromReturn200() throws Exception {
 
         var file = ResourceUtils.getFile("classpath:data/form/normal-save.json");
@@ -69,8 +104,8 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                                 .headers(headers)
                                 .content(requestBody)
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("id").isString())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
                 .andDo(print());
 
     }
@@ -96,7 +131,7 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                                 .headers(headers)
                                 .content(updateBody)
                 )
-                .andExpect(MockMvcResultMatchers.status().isNoContent())
+                .andExpect(status().isNoContent())
                 .andDo(print());
 
     }
@@ -116,7 +151,7 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
                 )
-                .andExpect(MockMvcResultMatchers.status().isNoContent())
+                .andExpect(status().isNoContent())
                 .andDo(print());
 
     }
@@ -137,7 +172,7 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andDo(print());
 
     }
@@ -166,9 +201,9 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                                 .param("sortOrder", "desc")
                                 .headers(headers)
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(5))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("nameE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5))
+                .andExpect(jsonPath("$[0].name").value("nameE"))
                 .andDo(print());
 
     }
@@ -190,8 +225,8 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(headers)
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(5))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(5))
                 .andDo(print());
 
     }

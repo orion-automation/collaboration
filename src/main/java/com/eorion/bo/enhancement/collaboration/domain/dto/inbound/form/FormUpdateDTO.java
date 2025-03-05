@@ -13,13 +13,16 @@ public class FormUpdateDTO {
     private String definitionKey;
     private String type;
     private String updatedBy;
-
     private List<Map<String, Object>> formData;
 
     public String getFormData() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.writeValueAsString(this.formData);
+            if (this.formData != null && !this.formData.isEmpty()) {
+                return objectMapper.writeValueAsString(this.formData);
+            } else {
+                return "";
+            }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
