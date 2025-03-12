@@ -70,6 +70,7 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
   {
       "name": "test-5",
       "createdBy": "demo",
+      "definitionKey": "definition-key",
       "type": "form",
       "tenant": "tenant",
       "formData": []
@@ -89,6 +90,27 @@ public class CollaborationFormControllerTest extends BaseControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.formData").doesNotExist())
+                .andDo(print());
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/enhancement/form/{id}", result.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .headers(headers)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.formData").doesNotExist())
+                .andDo(print());
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/enhancement/form/definition-key/{id}", "definition-key")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .headers(headers)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("test-5"))
+                .andExpect(jsonPath("$.type").value("form"))
+                .andExpect(jsonPath("$.tenant").value("tenant"))
+                .andExpect(jsonPath("$.createdBy").value("demo"))
                 .andDo(print());
     }
 
