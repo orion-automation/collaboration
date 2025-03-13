@@ -19,6 +19,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Objects;
 public class CollaborationFormService {
     private final FormRepository formRepository;
     private final FormStructureMapper formStructureMapper;
+    private final SqlSessionFactory sessionFactory;
 
     public IdDTO<String> createForm(FormSaveDTO saveDTO) throws InsertFailedException {
 
@@ -102,10 +104,17 @@ public class CollaborationFormService {
     }
 
     public FormDetailDTO getByDefinitionKey(String definitionKey) throws DataNotExistException {
+        String dbType = sessionFactory.getConfiguration().getDatabaseId();
+
         LambdaQueryWrapper<CollaborationForm> countQueryWp = new LambdaQueryWrapper<>();
         countQueryWp
-                .eq(StringUtils.isNotEmpty(definitionKey), CollaborationForm::getDefinitionKey, definitionKey)
-                .last("LIMIT 1");
+                .eq(StringUtils.isNotEmpty(definitionKey), CollaborationForm::getDefinitionKey, definitionKey);
+
+        if ("mysql".equalsIgnoreCase(dbType) || "mariadb".equalsIgnoreCase(dbType) ) {
+            countQueryWp.last("LIMIT 1");
+        } else {
+            countQueryWp.last("offset 0 rows fetch next 1 rows only");
+        }
 
         var result = formRepository.getOne(countQueryWp);
 
