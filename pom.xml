@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.eorion.bo.enhancement</groupId>
     <artifactId>collaboration</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <name>collaboration features</name>
     <description>A spring boot starter of collaboration features for Camunda Platform 7</description>
     <url/>
