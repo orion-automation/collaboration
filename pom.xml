@@ -13,7 +13,7 @@
     <version>0.2.3</version>
     <name>collaboration features</name>
     <description>A spring boot starter of collaboration features for Camunda Platform 7</description>
-    <url/>
+    <url>https://github.com/orion-automation/collaboration</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
