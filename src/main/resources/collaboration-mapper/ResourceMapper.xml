@@ -6,7 +6,7 @@
         <result property="name" column="resource_name"/>
         <result property="type" column="type"/>
         <result property="updatedBy" column="updated_by_txt"/>
-        <result property="updatedTs" column=""/>
+        <result property="updatedTs" column="UPDATED_TS"/>
         <result property="externalResourceId" column="external_resource_id"/>
         <result property="parentNode" column="parent_node"/>
         <result property="projectId" column="project_id"/>
