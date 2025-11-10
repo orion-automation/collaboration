@@ -17,7 +17,9 @@ public enum ResourceType {
     DMN("3", "dmn"),
     FORM("4", "form"),
     PAGE("5", "page"),
-    UX("6", "ux");
+    UX("6", "ux"),
+    DATA("7", "data"),
+    DOC("8", "doc"),;
 
     private static final Map<String, ResourceType> BY_VALUE = new HashMap<>();
 
