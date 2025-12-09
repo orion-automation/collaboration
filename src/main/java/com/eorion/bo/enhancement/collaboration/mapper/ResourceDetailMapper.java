@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ResourceDetailMapper extends BaseMapper<ResourceDetail> {
 
-    Integer findMaxVersionByResourceId(@Param("resourceId") Long resourceId);
+    Integer findMaxVersionByResourceId(@Param("resourceId") Integer resourceId);
 
 }

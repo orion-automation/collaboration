@@ -8,6 +8,7 @@ import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.IdDTO;
 import com.eorion.bo.enhancement.collaboration.domain.entity.Association;
 import com.eorion.bo.enhancement.collaboration.exception.DataNotExistException;
 import com.eorion.bo.enhancement.collaboration.exception.InsertFailedException;
+import com.eorion.bo.enhancement.collaboration.exception.UpdateFailedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class AssociationService {
 
     }
 
-    public void updateAssociationById(Long associationId, AssociationSaveDTO saveDTO) throws DataNotExistException, InsertFailedException {
+    public void updateAssociationById(Long associationId, AssociationSaveDTO saveDTO) throws DataNotExistException, UpdateFailedException {
         var dbAssociation = repository.getById(associationId);
         if (Objects.nonNull(dbAssociation)) {
             var destination = structureMapper.saveDtoToEntity(saveDTO);
@@ -51,7 +52,7 @@ public class AssociationService {
                 repository.updateById(destination);
             } catch (RuntimeException e) {
                 log.error("Insert Error : {}", e.getMessage());
-                throw new InsertFailedException("更新失败！");
+                throw new UpdateFailedException("更新失败！");
             }
 
         } else {

@@ -6,22 +6,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
 public class ResourceSaveDTO {
-    @Min(0L)
-    @NotNull(message = "projectId 不能为null")
-    private Integer projectId;
+    @Min(0)
+    private int projectId;
     @NotBlank(message = "资源名称不能为空")
+    @Size(max = 50)
     private String name;
     @NotNull(message = "type不能为null")
     private ResourceType type;
-    @Min(0L)
+    @Min(0)
     private Integer parentNode;
+    @Size(max = 255)
     private String externalResourceId;
+    @Size(max = 255)
     private String tags;
 
     private Map<String, Object> configJson;

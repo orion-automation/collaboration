@@ -79,7 +79,7 @@ public class PublicCooperationResourceControllerTest extends BaseControllerTest 
     public void getResourceDetailByIdShouldReturn200() throws Exception {
 
         ResourceDetail resourceDetail = new ResourceDetail();
-        resourceDetail.setResourceId(12L);
+        resourceDetail.setResourceId(12);
         resourceDetail.setXml("xml");
         resourceDetail.setCreatedBy("test");
         resourceDetail.setName("name");
@@ -101,7 +101,7 @@ public class PublicCooperationResourceControllerTest extends BaseControllerTest 
     public void getResourceDetailByIdShouldReturn403() throws Exception {
 
         ResourceDetail resourceDetail = new ResourceDetail();
-        resourceDetail.setResourceId(12L);
+        resourceDetail.setResourceId(12);
         resourceDetail.setXml("xml");
         resourceDetail.setPassword("password");
         resourceDetail.setCreatedBy("test");
@@ -127,7 +127,7 @@ public class PublicCooperationResourceControllerTest extends BaseControllerTest 
     public void getResourceDetailByIdWithPasswordShouldReturn200() throws Exception {
 
         ResourceDetail resourceDetail = new ResourceDetail();
-        resourceDetail.setResourceId(12L);
+        resourceDetail.setResourceId(12);
         resourceDetail.setXml("xml");
         resourceDetail.setPassword(Md5Utils.getMD5("password"));
         resourceDetail.setCreatedBy("test");

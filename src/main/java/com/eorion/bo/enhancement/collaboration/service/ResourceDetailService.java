@@ -5,19 +5,19 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ConversationRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceBpmnNodeRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceDetailRepository;
-import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.ProcessDevTimeSaveDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.cooperation.ResourceDetailPasswordDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.cooperation.ResourceDetailSaveDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.cooperation.ResourceDetailUpdateDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.mapper.ResourceDetailStructureMapper;
-import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.*;
+import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.CheckPasswordDTO;
+import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.CoopResourceDetailDTO;
+import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.IdDTO;
+import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.ResourceDetailConflictDTO;
 import com.eorion.bo.enhancement.collaboration.domain.entity.Conversation;
 import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceBpmnNode;
 import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceDetail;
-import com.eorion.bo.enhancement.collaboration.domain.enums.ProcessDevTimeType;
 import com.eorion.bo.enhancement.collaboration.exception.DataNotExistException;
 import com.eorion.bo.enhancement.collaboration.exception.InsertFailedException;
-import com.eorion.bo.enhancement.collaboration.exception.RequestParamException;
 import com.eorion.bo.enhancement.collaboration.exception.ResourceConflictException;
 import com.eorion.bo.enhancement.collaboration.utils.Md5Utils;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +45,8 @@ public class ResourceDetailService {
     private final ResourceDetailStructureMapper structureMapper;
 
 
-    @Transactional(rollbackFor = RuntimeException.class)
-    public IdDTO<String> saveResourceDetail(Long id, ResourceDetailSaveDTO saveDTO) throws InsertFailedException {
+    @Transactional
+    public IdDTO<String> saveResourceDetail(Integer id, ResourceDetailSaveDTO saveDTO) throws InsertFailedException {
 
         ResourceDetail resourceDetail = structureMapper.saveDtoToEntity(saveDTO);
 
@@ -89,7 +89,7 @@ public class ResourceDetailService {
     }
 
     @Transactional
-    public void updateResourceDetailById(String id, ResourceDetailUpdateDTO updateDTO) {
+    public void updateResourceDetailById(String id, ResourceDetailUpdateDTO updateDTO) throws ResourceConflictException {
 
         var resourceDetail = detailRepository.getById(id);
         if (Objects.nonNull(resourceDetail)) {
@@ -107,7 +107,7 @@ public class ResourceDetailService {
         }
     }
 
-    public List<CoopResourceDetailDTO> getAllDetailByResourceId(Long resourceId) {
+    public List<CoopResourceDetailDTO> getAllDetailByResourceId(int resourceId) {
         var list = detailRepository.list(
                 new LambdaQueryWrapper<ResourceDetail>()
                         .eq(ResourceDetail::getResourceId, resourceId)
@@ -162,7 +162,6 @@ public class ResourceDetailService {
 
 
     public ResponseEntity<?> getPublicResourceDetailById(String resourceDetailId, ResourceDetailPasswordDTO passwordDTO) throws DataNotExistException, NoSuchAlgorithmException {
-
         var dbResourceDetail = detailRepository.getById(resourceDetailId);
         if (Objects.nonNull(dbResourceDetail)) {
             String password = dbResourceDetail.getPassword();
@@ -188,35 +187,6 @@ public class ResourceDetailService {
             updateWrapper.eq("ID", resourceDetailId);
             updateWrapper.set("PASSWORD_TXT", null);
             detailRepository.update(updateWrapper);
-        }
-    }
-
-    public void saveDevProcessTime(ProcessDevTimeSaveDTO saveDTO) throws RequestParamException, DataNotExistException {
-
-        var from = ProcessDevTimeType.from(saveDTO.getType());
-        if (Objects.nonNull(from)) {
-            var db = detailRepository.getById(saveDTO.getId());
-            if (Objects.nonNull(db)) {
-                UpdateWrapper<ResourceDetail> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("ID", db.getId());
-                updateWrapper.setSql(from.getDesc() + " = " + from.getDesc() + " + " + 30);
-                detailRepository.update(updateWrapper);
-            } else {
-                throw new DataNotExistException();
-            }
-        } else {
-            throw new RequestParamException("参数类型不支持！");
-        }
-
-    }
-
-    public CodeEffortDTO getProcessCodeEffort(String resourceDetailId) throws DataNotExistException {
-
-        var resourceDetail = detailRepository.getById(resourceDetailId);
-        if (Objects.nonNull(resourceDetail)) {
-            return new CodeEffortDTO(resourceDetail.getZeroCodeEffort() + resourceDetail.getLowCodeEffort() + resourceDetail.getAdvanceCodeEffort());
-        } else {
-            throw new DataNotExistException();
         }
     }
 

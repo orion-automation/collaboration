@@ -1,9 +1,7 @@
 package com.eorion.bo.enhancement.collaboration.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ProjectRepository;
-import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceDetailRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceRepository;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.ResourceSaveDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.ResourceUpdatedDTO;
@@ -11,7 +9,6 @@ import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.cooperation.Co
 import com.eorion.bo.enhancement.collaboration.domain.dto.mapper.ResourceStructureMapper;
 import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.*;
 import com.eorion.bo.enhancement.collaboration.domain.entity.Resource;
-import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceDetail;
 import com.eorion.bo.enhancement.collaboration.domain.enums.CoopResourceStatus;
 import com.eorion.bo.enhancement.collaboration.domain.enums.ProjectType;
 import com.eorion.bo.enhancement.collaboration.domain.enums.ResourceType;
@@ -31,14 +28,11 @@ import java.util.stream.Collectors;
 public class ResourceService {
 
     private final ResourceRepository repository;
-    private final ResourceDetailRepository detailRepository;
     private final ProjectRepository projectRepository;
     private final ResourceStructureMapper structureMapper;
 
-    public ResourceService(ResourceRepository repository, ResourceDetailRepository detailRepository,
-                           ProjectRepository projectRepository, ResourceStructureMapper structureMapper) {
+    public ResourceService(ResourceRepository repository, ProjectRepository projectRepository, ResourceStructureMapper structureMapper) {
         this.repository = repository;
-        this.detailRepository = detailRepository;
         this.projectRepository = projectRepository;
         this.structureMapper = structureMapper;
     }
@@ -125,18 +119,7 @@ public class ResourceService {
         return resourceBrief;
     }
 
-    public CodeEffortDTO getProcessCodeEffort(Integer resourceId) {
-
-        var list = detailRepository.list(new LambdaQueryWrapper<ResourceDetail>().eq(ResourceDetail::getResourceId, resourceId));
-        long codeEffort = 0L;
-        for (ResourceDetail resourceDetail : list) {
-            long item = resourceDetail.getZeroCodeEffort() + resourceDetail.getLowCodeEffort() + resourceDetail.getAdvanceCodeEffort();
-            codeEffort += item;
-        }
-        return new CodeEffortDTO(codeEffort);
-    }
-
-    public void coopResourceTakeDown(Long resourceId) throws UpdateFailedException, DataNotExistException {
+    public void coopResourceTakeDown(int resourceId) throws UpdateFailedException, DataNotExistException {
 
         var dbResource = repository.getById(resourceId);
         if (Objects.isNull(dbResource)) {
@@ -148,7 +131,7 @@ public class ResourceService {
         }
     }
 
-    public void coopResourcePublish(Long resourceId) throws DataNotExistException, UpdateFailedException {
+    public void coopResourcePublish(int resourceId) throws DataNotExistException, UpdateFailedException {
         var dbResource = repository.getById(resourceId);
         if (Objects.isNull(dbResource)) {
             throw new DataNotExistException("对应ID信息不存在！");
@@ -160,7 +143,7 @@ public class ResourceService {
 
     }
 
-    public void coopResourceTagsUpdate(Long resourceId, CoopResourceTagsDTO tags) throws DataNotExistException, IllegalParameterException {
+    public void coopResourceTagsUpdate(int resourceId, CoopResourceTagsDTO tags) throws DataNotExistException, IllegalParameterException {
         var dbResource = repository.getById(resourceId);
         if (Objects.isNull(dbResource))
             throw new DataNotExistException("对应ID信息不存在！");

@@ -3,19 +3,14 @@ package com.eorion.bo.enhancement.collaboration.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.MemberRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ProjectRepository;
-import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceDetailRepository;
-import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceRepository;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.ProjectSaveDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.ProjectUpdateDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.mapper.MemberStructureMapper;
 import com.eorion.bo.enhancement.collaboration.domain.dto.mapper.ProjectStructureMapper;
-import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.CodeEffortDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.IdDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.ProjectDetailDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.ProjectListDTO;
 import com.eorion.bo.enhancement.collaboration.domain.entity.Member;
-import com.eorion.bo.enhancement.collaboration.domain.entity.Resource;
-import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceDetail;
 import com.eorion.bo.enhancement.collaboration.domain.enums.RoleStatus;
 import com.eorion.bo.enhancement.collaboration.exception.DataNotExistException;
 import com.eorion.bo.enhancement.collaboration.exception.InsertFailedException;
@@ -35,20 +30,15 @@ import java.util.stream.Collectors;
 public class ProjectService {
     private final ProjectRepository repository;
     private final MemberRepository memberRepository;
-    private final ResourceRepository resourceRepository;
-    private final ResourceDetailRepository resourceDetailRepository;
     private final IdentityService identityService;
     private final ProjectStructureMapper projectStructureMapper;
     private final MemberStructureMapper memberStructureMapper;
 
     public ProjectService(ProjectRepository repository, MemberRepository memberRepository,
-                          ResourceRepository resourceRepository, ResourceDetailRepository resourceDetailRepository,
                           IdentityService identityService, ProjectStructureMapper projectStructureMapper,
                           MemberStructureMapper memberStructureMapper) {
         this.repository = repository;
         this.memberRepository = memberRepository;
-        this.resourceRepository = resourceRepository;
-        this.resourceDetailRepository = resourceDetailRepository;
         this.identityService = identityService;
         this.projectStructureMapper = projectStructureMapper;
         this.memberStructureMapper = memberStructureMapper;
@@ -118,21 +108,5 @@ public class ProjectService {
             throw new DataNotExistException("该ID对应的数据不存在，请检查对应ID");
         }
         return ProjectDetailDTO.fromEntity(project);
-    }
-
-    public CodeEffortDTO getProcessCodeEffort(Integer projectId) {
-        var resourceList = resourceRepository.list(
-                        new LambdaQueryWrapper<Resource>().eq(Resource::getProjectId, projectId)
-                )
-                .stream()
-                .map(Resource::getId)
-                .collect(Collectors.toList());
-        var resourceDetails = resourceDetailRepository.list(new LambdaQueryWrapper<ResourceDetail>().in(ResourceDetail::getResourceId, resourceList));
-        long codeEffort = 0L;
-        for (ResourceDetail resourceDetail : resourceDetails) {
-            long item = resourceDetail.getZeroCodeEffort() + resourceDetail.getLowCodeEffort() + resourceDetail.getAdvanceCodeEffort();
-            codeEffort += item;
-        }
-        return new CodeEffortDTO(codeEffort);
     }
 }
