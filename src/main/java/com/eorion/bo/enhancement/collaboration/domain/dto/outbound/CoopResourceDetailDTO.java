@@ -13,7 +13,7 @@ public class CoopResourceDetailDTO {
 
     private String id;
 
-    private Long resourceId;
+    private Integer resourceId;
 
     private String name;
 

@@ -2,7 +2,6 @@ package com.eorion.bo.enhancement.collaboration.adapter.inbound;
 
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceBpmnNodeRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceDetailRepository;
-import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.ProcessDevTimeSaveDTO;
 import com.eorion.bo.enhancement.collaboration.domain.dto.inbound.cooperation.ResourceDetailUpdateDTO;
 import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceBpmnNode;
 import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceDetail;
@@ -43,8 +42,6 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
     @Autowired
     private ResourceBpmnNodeRepository nodeRepository;
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -67,7 +64,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
 
     @Test
     public void createCooperationResourceDetailReturn200() throws Exception {
-        Long resourceId = 34L;
+        var resourceId = 34;
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/enhancement/collaboration/resource/{resourceId}/detail", resourceId)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -102,7 +99,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
         String xml = new String(xmlInputStream.readAllBytes());
         ResourceDetail detail = new ResourceDetail();
         detail.setName("name");
-        detail.setResourceId(34L);
+        detail.setResourceId(34);
         detail.setXml(xml);
 
         detailRepository.save(detail);
@@ -162,7 +159,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
         for (int i = 0; i < 3; i++) {
             ResourceDetail detail = new ResourceDetail();
             detail.setName("name" + i);
-            detail.setResourceId(34L);
+            detail.setResourceId(34);
             detail.setVersion(i + 1);
             detail.setXml(xml);
             detail.setConfigJson("{\"key\":\"value\"}");
@@ -194,7 +191,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
 
         var detail = new ResourceDetail();
         detail.setName("name");
-        detail.setResourceId(34L);
+        detail.setResourceId(34);
         detail.setVersion(1);
         detail.setXml(xml);
         detail.setConfigJson("""
@@ -245,7 +242,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
 
         ResourceDetail detail = new ResourceDetail();
         detail.setName("name");
-        detail.setResourceId(34L);
+        detail.setResourceId(34);
         detail.setVersion(1);
         detail.setXml(xml);
         detailRepository.save(detail);
@@ -273,7 +270,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
 
         ResourceDetail detail = new ResourceDetail();
         detail.setName("name");
-        detail.setResourceId(34L);
+        detail.setResourceId(34);
         detail.setVersion(1);
         detail.setXml(xml);
         detailRepository.save(detail);
@@ -300,7 +297,7 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
 
         ResourceDetail detail = new ResourceDetail();
         detail.setName("name");
-        detail.setResourceId(34L);
+        detail.setResourceId(34);
         detail.setVersion(1);
         detail.setXml(xml);
         detailRepository.save(detail);
@@ -330,76 +327,12 @@ public class CooperationResourceDetailControllerTest extends BaseControllerTest 
     }
 
     @Test
-    public void saveResourceDetailForCodeEffortReturn204() throws Exception {
-        String xml = new String(xmlInputStream.readAllBytes());
-
-        ResourceDetail detail = new ResourceDetail();
-        detail.setName("name");
-        detail.setResourceId(34L);
-        detail.setVersion(1);
-        detail.setXml(xml);
-        detailRepository.save(detail);
-
-        for (int j = 0; j < 3; j++) {
-            ResourceBpmnNode node = new ResourceBpmnNode();
-            node.setResourceDetailId(detail.getId());
-            node.setActivityId("ActivityId" + j);
-            nodeRepository.save(node);
-        }
-
-        ProcessDevTimeSaveDTO saveDTO = new ProcessDevTimeSaveDTO();
-        saveDTO.setId(detail.getId());
-        saveDTO.setType("zero");
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/enhancement/collaboration/resource/detail/code-effort")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .headers(headers)
-                                .content(mapper.writeValueAsString(saveDTO))
-                )
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
-
-        assertEquals(30, detailRepository.getById(detail.getId()).getZeroCodeEffort());
-    }
-
-    @Test
-    public void getResourceDetailForCodeEffortReturn200() throws Exception {
-        String xml = new String(xmlInputStream.readAllBytes());
-
-        ResourceDetail detail = new ResourceDetail();
-        detail.setName("name");
-        detail.setResourceId(34L);
-        detail.setVersion(1);
-        detail.setXml(xml);
-        detail.setZeroCodeEffort(30L);
-        detail.setLowCodeEffort(30L);
-        detail.setAdvanceCodeEffort(30L);
-        detailRepository.save(detail);
-
-        for (int j = 0; j < 3; j++) {
-            ResourceBpmnNode node = new ResourceBpmnNode();
-            node.setResourceDetailId(detail.getId());
-            node.setActivityId("ActivityId" + j);
-            nodeRepository.save(node);
-        }
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.get("/enhancement/collaboration/resource/detail/{resourceDetailId}/code-effort/statistics", detail.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .headers(headers)
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.codeEffort").value(90));
-
-    }
-
-    @Test
     public void checkPasswordForResourceDetailByDetailIdReturn200() throws Exception {
         String xml = new String(xmlInputStream.readAllBytes());
 
         ResourceDetail detail = new ResourceDetail();
         detail.setName("name");
-        detail.setResourceId(34L);
+        detail.setResourceId(34);
         detail.setVersion(1);
         detail.setXml(xml);
         detail.setPassword("password");

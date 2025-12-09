@@ -12,7 +12,7 @@ public class ResourceDetailRepository extends ServiceImpl<ResourceDetailMapper, 
 
     private final ResourceDetailMapper mapper;
 
-    public Integer getMaxVersion(Long resourceId) {
+    public Integer getMaxVersion(Integer resourceId) {
         return mapper.findMaxVersionByResourceId(resourceId);
     }
 }

@@ -11,7 +11,7 @@ public class ResourceDetail {
     private String id;
 
     @TableField("RESOURCE_ID")
-    private Long resourceId;
+    private int resourceId;
 
     @TableField(value = "NAME_TXT")
     private String name;

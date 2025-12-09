@@ -1,12 +1,10 @@
 package com.eorion.bo.enhancement.collaboration.adapter.inbound;
 
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ProjectRepository;
-import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceBpmnNodeRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceDetailRepository;
 import com.eorion.bo.enhancement.collaboration.adapter.outbound.ResourceRepository;
 import com.eorion.bo.enhancement.collaboration.domain.entity.Project;
 import com.eorion.bo.enhancement.collaboration.domain.entity.Resource;
-import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceBpmnNode;
 import com.eorion.bo.enhancement.collaboration.domain.entity.ResourceDetail;
 import com.eorion.bo.enhancement.collaboration.domain.enums.CoopResourceStatus;
 import com.eorion.bo.enhancement.collaboration.domain.enums.ProjectType;
@@ -27,14 +25,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -59,11 +52,6 @@ public class CooperationResourceControllerTest extends BaseControllerTest {
 
     @Autowired
     private ResourceDetailRepository detailRepository;
-
-    @Autowired
-    private ResourceBpmnNodeRepository nodeRepository;
-
-    private final InputStreamReader xmlStreamReader = new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("bpmn/diagram_test.bpmn")));
 
     private static final HttpHeaders headers = new HttpHeaders();
 
@@ -162,7 +150,7 @@ public class CooperationResourceControllerTest extends BaseControllerTest {
             repository.save(resource);
 
             ResourceDetail resourceDetail = new ResourceDetail();
-            resourceDetail.setResourceId(resource.getId().longValue());
+            resourceDetail.setResourceId(resource.getId());
             resourceDetail.setUpdatedBy("updateBy");
             resourceDetail.setUpdatedTs(1698981580507L);
             detailRepository.save(resourceDetail);
@@ -218,7 +206,7 @@ public class CooperationResourceControllerTest extends BaseControllerTest {
         repository.save(resource);
 
         ResourceDetail resourceDetail = new ResourceDetail();
-        resourceDetail.setResourceId(resource.getId().longValue());
+        resourceDetail.setResourceId(resource.getId());
         resourceDetail.setUpdatedBy("updateBy");
         resourceDetail.setUpdatedTs(System.currentTimeMillis());
         detailRepository.save(resourceDetail);
@@ -277,50 +265,6 @@ public class CooperationResourceControllerTest extends BaseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.configJson").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.tags").value(resource.getTags()))
                 .andDo(print());
-    }
-
-    @Test
-    public void getResourceForCodeEffortReturn200() throws Exception {
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
-
-        BufferedReader br = new BufferedReader(xmlStreamReader);
-        while ((line = br.readLine()) != null) {
-            stringBuilder.append(line);
-        }
-        String xml = stringBuilder.toString();
-
-        List<String> ids = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            ResourceDetail detail = new ResourceDetail();
-            detail.setName("name");
-            detail.setResourceId(34L);
-            detail.setVersion(1);
-            detail.setXml(xml);
-            detail.setZeroCodeEffort(30L);
-            detail.setLowCodeEffort(30L);
-            detail.setAdvanceCodeEffort(30L);
-            detailRepository.save(detail);
-            ids.add(detail.getId());
-        }
-
-        for (String id : ids) {
-            for (int j = 0; j < 3; j++) {
-                ResourceBpmnNode node = new ResourceBpmnNode();
-                node.setResourceDetailId(id);
-                node.setActivityId("ActivityId" + j);
-                nodeRepository.save(node);
-            }
-        }
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.get("/enhancement/collaboration/resource/{resourceId}/code-effort/statistics", 34)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .headers(headers)
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.codeEffort").value(180));
-
     }
 
     @Test

@@ -4,7 +4,7 @@ import com.eorion.bo.enhancement.collaboration.domain.dto.outbound.ResourceDetai
 import lombok.Getter;
 
 @Getter
-public class ResourceConflictException extends RuntimeException{
+public class ResourceConflictException extends Exception {
 
     private final ResourceDetailConflictDTO conflict;
 
